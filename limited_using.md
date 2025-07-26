@@ -288,3 +288,9 @@ using std::vector,
     }
 }
 ```
+
+## Conclusion
+With the limited-using declarations one could both shorten the effort in writing *and*
+ease the cognitive load required to read the code, without compromising on effects the code has on other users' programs.
+This aleviates the burder that C++ developers have when deciding how to structure their code
+and spares energy to be used for more productive and important developments.
