@@ -172,6 +172,21 @@ The limited-using declarations behave as if their non-limited equivalents are pl
 Unlike the non-limited equivalents, the names introduced by the `using`{.cpp} declarations are not visible
 outside the limited-using declarations.
 
+### NOT a scope
+The limited-using declarations do not start a namespace or block scope.
+For example, this is valid:
+```cpp
+using namespace std {
+    void foo(const string &s) {
+        print(s);
+    }
+}
+
+void bar(const string &s) {
+    foo(s); // foo is visible here
+}
+```
+
 ### Alternative specification
 We could also specify the behavior as follows:
 ```cpp
@@ -187,6 +202,89 @@ namespace __affected_code__ {
     int foo();
     int bar();
 }
-using _affected_code::foo;
-using _affected_code::bar;
+using __affected_code__::foo;
+using __affected_code__::bar;
+```
+
+## Examples
+
+### Hello world example
+The simplest example:
+```cpp
+#include <print>
+
+using std::print {
+    int main() {
+        print("Hello, {}!\n", "world");
+    }
+}
+```
+
+### std::chrono_literals example
+We can now use user-defined literals without polluting the rest of the scope:
+```cpp
+// timings.hpp
+
+#include <chrono>
+
+using namespace std::chrono_literals {
+    constexpr std::chrono::steady_clock::duration Period = 500ms;
+    constexpr std::chrono::steady_clock::duration TotalDuration = 1h;
+}
+```
+
+```cpp
+// degree.hpp
+
+// Let's assume that this header is included after timings.hpp...
+
+class Degree
+{
+public:
+    Degree(int);
+
+    //...
+};
+
+// OK: std::chrono_literals::operator""d(unsigned long long) is not visible from here
+Degree operator"" d(unsigned long long a)
+{
+    return Degree(a);
+}
+```
+
+### A convoluted example
+The third example could be made both explicit and clear:
+```cpp
+#include <iostream>
+#include <iterator>
+#include <numeric>
+#include <string>
+#include <vector>
+
+using std::vector,
+      std::string,
+      std::transform_reduce,
+      std::next,
+      std::move,
+      std::plus {
+    int main()
+    {
+        vector<string> words = {"C++", "is", "insane"};
+
+        cout << transform_reduce(
+                    next(words.begin()), words.end(), words.front(),
+                    [](string a, const string &b)
+                    { return move(a) + "-" + b; },
+                    [](const string &s)
+                    { return s; }
+                )
+            << " | total chars: "
+            << transform_reduce(words.begin(), words.end(), 0, plus<>(),
+                    [](const string &s)
+                    { return (int)s.size(); }
+                )
+            << endl;
+    }
+}
 ```
