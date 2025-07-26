@@ -147,6 +147,17 @@ int main()
 
 With a possible shift towards more functional-style and data-oriented programming the current best-practices of C++ are a hindrance to embracing the newer and safer paradigms.
 
+Note: the issue would be less if instead of `using namespace std;`{.cpp} we wrote:
+```cpp
+using std::vector,
+      std::string,
+      std::transform_reduce,
+      std::next,
+      std::move,
+      std::plus;
+```
+This would however still introduce those names, even if we don't intend to expose them to the rest of the code.
+
 ## Introducing the limited-using declarations and directives
 To solve those conflicts I propose an extension of existing `using`{.cpp} constructs:
 limiting their effect on explicit code.
